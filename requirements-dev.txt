@@ -1,0 +1,7 @@
+-r requirements.txt
+
+autoflake
+black
+flake8
+isort
+pytest
