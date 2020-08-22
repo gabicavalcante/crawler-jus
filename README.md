@@ -27,7 +27,7 @@ Um número de processo como `0710802-55.2018.8.02.0001`, tem uma estrutura estru
    2. `55`: dígito verificador.
    3. `2018`: ano do ajuizamento do processo. 
    4. `8`: órgão ou segmento do Poder Judiciário.
-   5. `02`: identificação do tribunal (02 para AL e 12 para MS).
+   5. `02`: identificação do tribunal (02 para MS e 12 para AL).
    6. `0001`: código da comarca
 
 
@@ -38,3 +38,17 @@ Um número de processo como `0710802-55.2018.8.02.0001`, tem uma estrutura estru
 - TJAL 
   - 1º grau - https://www2.tjal.jus.br/cpopg/open.do    
   - 2º grau - https://www2.tjal.jus.br/cposg5/open.do
+
+
+### Dados retornados
+
+```
+classe
+área
+assunto
+data de distribuição
+juiz
+valor da ação
+partes do processo
+lista das movimentações (data e movimento)
+```

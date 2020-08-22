@@ -1,8 +1,11 @@
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 
 
 @app.route("/")
 def index():
-    return {}
+    content = request.json
+    if "number" in content:
+        return {"sucess": content.get("number")}
+    return {}, 400
