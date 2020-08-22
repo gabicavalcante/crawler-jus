@@ -32,6 +32,10 @@ def clean_proc_value(value: str) -> float:
     return float(value[2:].replace(".", "").replace(",", ".").strip())
 
 
+def clean_string(s: str):
+    return s.replace("\n", "").replace("\t", "").replace("\r", "").strip()
+
+
 def save(signal, sender, item, response, spider):
     logger.debug(item)
 
@@ -43,6 +47,7 @@ class ProcessData(scrapy.Item):
     distribuicao = scrapy.Field()
     juiz = scrapy.Field()
     valor_acao = scrapy.Field()
+    movimentos = scrapy.Field()
 
 
 class TJCrawler(scrapy.Spider):
@@ -79,6 +84,27 @@ class TJCrawler(scrapy.Spider):
                     f"//tr[contains(string(), '{label}')]/td[2]//span[last()]/text()"
                 ).get()
 
+        data = []
+        movements_data = response.xpath(
+            "//tbody[contains(@id, 'tabelaUltimasMovimentacoes')]//tr"
+        )
+
+        # TODO: make this more generic
+        for mov in movements_data:
+            data.append(
+                {
+                    "date": clean_string(mov.xpath("td/text()")[0].get()),
+                    "details": "%s/%s"
+                    % (
+                        (
+                            clean_string(mov.xpath("td/text()")[2].get())
+                            or clean_string(mov.xpath("td")[2].xpath("a/text()").get())
+                        ),
+                        clean_string(mov.xpath("td")[2].xpath("span/text()").get()),
+                    ),
+                }
+            )
+
         yield ProcessData(
             classe=results.get("Classe"),
             area=results.get("Área"),
@@ -86,6 +112,7 @@ class TJCrawler(scrapy.Spider):
             distribuicao=results.get("Distribuição"),
             juiz=results.get("Juiz"),
             valor_acao=clean_proc_value(results.get("Valor da ação", "")),
+            movimentos=data,
         )
 
 

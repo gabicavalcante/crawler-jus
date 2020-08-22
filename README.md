@@ -52,3 +52,22 @@ valor da ação
 partes do processo
 lista das movimentações (data e movimento)
 ```
+
+### TODO
+
+#### v1
+
+- [ ] Crawler do MS
+  - [x] Recuperar dados gerais
+  - [ ] Recuperar partes do processo
+  - [x] Recuperar lista das movimentações (data e movimento)
+- [ ] Criar testes
+- [ ] Armazenar dados do crawler no banco (mongo)
+- [ ] Conectar a API ao banco
+- [ ] Fazer atualizacao no banco em background caso o processo não exista no banco
+
+#### v2
+
+- [ ] Criar docker-compose
+- [ ] Generalizar crawler para AL
+- [ ] Adicionar celery/redis queue para agendar o crawler
