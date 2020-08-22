@@ -64,9 +64,20 @@ class TJCrawler(scrapy.Spider):
 
         results: Dict[str, str] = {}
         for label in self.labels:
-            results[label] = general_data.xpath(
-                f"//tr[contains(string(), '{label}')]/td[2]//span[last()]/text()"
-            ).get()
+            if label == "Área":
+                results[label] = (
+                    general_data.xpath(
+                        f"//tr[contains(string(), '{label}')]/td[2]/table/tr/td/text()"
+                    )[1]
+                    .get()
+                    .replace("\n", "")
+                    .replace("\t", "")
+                    .strip()
+                )
+            else:
+                results[label] = general_data.xpath(
+                    f"//tr[contains(string(), '{label}')]/td[2]//span[last()]/text()"
+                ).get()
 
         yield ProcessData(
             classe=results.get("Classe"),
@@ -90,6 +101,6 @@ if __name__ == "__main__":
 
     dispatcher.connect(save, signal=signals.item_passed)
 
-    process = CrawlerProcess(settings={"dont_redirect": True})
+    process = CrawlerProcess(settings={})
     process.crawl(TJCrawler, proc_data=params)
     process.start()
