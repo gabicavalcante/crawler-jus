@@ -20,8 +20,7 @@ jobs:
           python-version: 3.7
       - name: Install dependencies
         run: |
-          make install 
-          cp .secrets.toml.sample .secrets.toml
+          pip install -r requirements-dev.txt
       - name: Lint with flake8
         run: |
           pip install flake8
