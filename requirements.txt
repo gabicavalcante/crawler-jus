@@ -2,3 +2,4 @@ flask
 scrapy
 loguru
 requests
+gunicorn
