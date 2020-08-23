@@ -17,8 +17,9 @@ from urllib.parse import urlencode
 import scrapy
 from loguru import logger
 from scrapy import signals
-from scrapy.crawler import CrawlerProcess
 from scrapy.signalmanager import dispatcher
+
+# from scrapy.crawler import CrawlerProcess
 
 
 def clean_proc_value(value: str) -> float:

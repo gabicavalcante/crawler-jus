@@ -1,4 +1,3 @@
-import io
 from scrapy.http import HtmlResponse, Request
 from tjcrawler.crawler.tjcrawler import TJCrawler
 import os
@@ -61,4 +60,3 @@ def test_spider():
     ]
 
     assert results == movements
-
