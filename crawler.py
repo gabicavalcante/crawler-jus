@@ -20,9 +20,6 @@ from scrapy import signals
 from scrapy.crawler import CrawlerProcess
 from scrapy.signalmanager import dispatcher
 
-from re import sub
-from decimal import Decimal
-
 
 def clean_proc_number(number: str) -> str:
     return number.replace(".", "").replace("-", "")
@@ -33,7 +30,9 @@ def clean_proc_value(value: str) -> float:
 
 
 def clean_string(s: str):
-    return s.replace("\n", "").replace("\t", "").replace("\r", "").strip()
+    return (
+        s.replace("\n", "").replace("\t", "").replace("\r", "").replace(":", "").strip()
+    )
 
 
 def save(signal, sender, item, response, spider):
@@ -48,6 +47,7 @@ class ProcessData(scrapy.Item):
     juiz = scrapy.Field()
     valor_acao = scrapy.Field()
     movimentos = scrapy.Field()
+    parts = scrapy.Field()
 
 
 class TJCrawler(scrapy.Spider):
@@ -64,6 +64,7 @@ class TJCrawler(scrapy.Spider):
         url = f"{self.starting_url}?conversationId=&{urlencode(params)}"
         yield scrapy.Request(url, callback=self.parser_user_data, dont_filter=True)
 
+    # TODO: refactor
     def parser_user_data(self, response):
         general_data = response.xpath("//table[contains(@class, 'secaoFormBody')][1]")
 
@@ -83,6 +84,27 @@ class TJCrawler(scrapy.Spider):
                 results[label] = general_data.xpath(
                     f"//tr[contains(string(), '{label}')]/td[2]//span[last()]/text()"
                 ).get()
+
+        parts = response.xpath("//table[contains(@id, 'tablePartesPrincipais')]//tr")
+
+        data_parts = []
+        for part in parts:
+            first = {
+                clean_string(part.xpath("td[1]/span/text()").get()),
+                clean_string(part.xpath("td[2]/text()").get()),
+            }
+            data_parts.append(first)
+
+            rows_labels = part.xpath("td[2]/span")
+            rows_values = part.xpath("td[2]/text()")[2::2]
+            for label, value in zip(rows_labels, rows_values):
+                data_parts.append(
+                    {
+                        clean_string(label.xpath("text()").get()): clean_string(
+                            value.get()
+                        ),
+                    }
+                )
 
         data = []
         movements_data = response.xpath(
@@ -113,6 +135,7 @@ class TJCrawler(scrapy.Spider):
             juiz=results.get("Juiz"),
             valor_acao=clean_proc_value(results.get("Valor da ação", "")),
             movimentos=data,
+            parts=data_parts,
         )
 
 
