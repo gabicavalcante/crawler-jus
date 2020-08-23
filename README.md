@@ -1,3 +1,5 @@
+![CI](https://github.com/gabicavalcante/crawler-jus/workflows/CI/badge.svg)
+
 # Crawler Processos TJ
 
 Projeto de raspagem de dados de processos dos tribunais de Justiça de Alagoas (TJAL) e do Mato Grosso do Sul (TJMS).
