@@ -102,7 +102,7 @@ lista das movimentações (data e movimento)
   - [x] Recuperar partes do processo
   - [x] Recuperar lista das movimentações (data e movimento)
   - [x] Pegar dados completos de partes e movimentacoes
-  - [ ] **➜** Corrigir extracao dos dados de movimentos
+  - [x] Corrigir extracao dos dados de movimentos
 - [ ] Criar testes
 - [ ] Armazenar dados do crawler no banco (mongo)
 - [ ] Conectar a API ao banco
@@ -110,6 +110,7 @@ lista das movimentações (data e movimento)
 
 #### v2
 
-- [ ] Criar docker-compose
 - [ ] Generalizar crawler para AL
+- [ ] Criar docker-compose
+- [ ] Adicionar [dramatic](https://dramatiq.io/guide.html#actors)
 - [ ] Adicionar celery/redis queue para agendar o crawler

@@ -20,7 +20,14 @@ from scrapy import signals
 from scrapy.crawler import CrawlerProcess
 from scrapy.signalmanager import dispatcher
 
-from utils import clean, clean_proc_value
+
+def clean_proc_value(value: str) -> float:
+    return float(value[2:].replace(".", "").replace(",", ".").strip())
+
+
+def clean(value: str, dropset: str = "\n\t\r") -> str:
+    dropmap = dict.fromkeys(map(ord, dropset))
+    return value.translate(dropmap).strip()
 
 
 def save(signal, sender, item, response, spider):
@@ -56,7 +63,9 @@ class TJCrawler(scrapy.Spider):
             "dadosConsulta.tipoNuProcesso": "UNIFICADO",
             "numeroDigitoAnoUnificado": self.process_number[:15],
             "foroNumeroUnificado": self.process_number[-4:],
-            "dadosConsulta.valorConsultaNuUnificado": clean(self.process_number),
+            "dadosConsulta.valorConsultaNuUnificado": clean(
+                self.process_number, dropset=".-"
+            ),
         }
 
         url = f"{self.starting_url}?conversationId=&{urlencode(params)}"
@@ -78,7 +87,6 @@ class TJCrawler(scrapy.Spider):
             parts=parts_data,
         )
 
-    # TODO: make this more generic
     def extract_movements(self, response):
         results = []
         movements_data = response.xpath(
@@ -86,30 +94,29 @@ class TJCrawler(scrapy.Spider):
         )
 
         for mov in movements_data:
-            results.append(
-                {
-                    "date": clean(mov.xpath("td/text()")[0].get()),
-                    "details": "%s/%s"
-                    % (
-                        (
-                            clean(mov.xpath("td/text()")[2].get())
-                            or clean(mov.xpath("td")[2].xpath("a/text()").get())
-                        ),
-                        clean(mov.xpath("td")[2].xpath("span/text()").get()),
-                    ),
-                }
-            )
+            date = clean(mov.xpath("td/text()")[0].get())
+            details = [
+                (
+                    clean(mov.xpath("td/text()")[2].get())
+                    or clean(mov.xpath("td")[2].xpath("a/text()").get())
+                )
+            ]
+            if clean(mov.xpath("td")[2].xpath("span/text()").get()):
+                details.append(clean(mov.xpath("td")[2].xpath("span/text()").get()))
+            results.append({"date": date, "details": details})
 
         return results
 
     def extract_parts(self, response):
         parts = response.xpath("//table[contains(@id, 'tableTodasPartes')]//tr")
 
+        dropset: str = "\n\t\r:"
+
         data_parts = []
         for part in parts:
             first = {
-                clean(part.xpath("td[1]/span/text()").get()),
-                clean(part.xpath("td[2]/text()").get()),
+                clean(part.xpath("td[1]/span/text()").get(), dropset),
+                clean(part.xpath("td[2]/text()").get(), dropset),
             }
             data_parts.append(first)
 
@@ -117,8 +124,13 @@ class TJCrawler(scrapy.Spider):
             rows_values = part.xpath("td[2]/text()")[2::2]
             for label, value in zip(rows_labels, rows_values):
                 data_parts.append(
-                    {clean(label.xpath("text()").get()): clean(value.get()),}
+                    {
+                        clean(label.xpath("text()").get(), dropset): clean(
+                            value.get(), dropset
+                        ),
+                    }
                 )
+        return data_parts
 
     def extract_genaral_data(self, response):
         general_data = response.xpath("//table[contains(@class, 'secaoFormBody')][1]")
@@ -135,7 +147,7 @@ class TJCrawler(scrapy.Spider):
                 results[label] = general_data.xpath(
                     f"//tr[contains(string(), '{label}')]/td[2]//span[last()]/text()"
                 ).get()
-        
+
         return results
 
 
