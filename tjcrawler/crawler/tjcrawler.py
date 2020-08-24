@@ -85,8 +85,8 @@ class TJCrawler(scrapy.Spider):
         html = HTML(html=response.body, async_=True)
 
         general_data = self.extract_genaral_data(html)
-        parts_data = self.extract_parts(response)
-        movements_data = self.extract_movements(response)
+        parts_data = self.extract_parts(html)
+        movements_data = self.extract_movements(html)
 
         yield ProcessData(
             classe=general_data.get("Classe"),
@@ -99,68 +99,37 @@ class TJCrawler(scrapy.Spider):
             parts=parts_data,
         )
 
-    def extract_movements(self, response):
+    def extract_movements(self, html):
         results = []
-        movements_data = response.xpath(
-            "//tbody[contains(@id, 'tabelaTodasMovimentacoes')]//tr"
+        movements_data = html.find(
+            "#tabelaTodasMovimentacoes,tabelaUltimasMovimentacoes", first=True
         )
 
-        for mov in movements_data:
-            date = clean(mov.xpath("td/text()")[0].get())
-            details = [
-                (
-                    clean(mov.xpath("td/text()")[2].get())
-                    or clean(mov.xpath("td")[2].xpath("a/text()").get())
-                )
-            ]
-            if clean(mov.xpath("td")[2].xpath("span/text()").get()):
-                details.append(clean(mov.xpath("td")[2].xpath("span/text()").get()))
-            results.append({"date": date, "details": details})
+        for mov in movements_data.xpath("//tr"):
+            date = mov.find("td", first=True).text
+            details = mov.find("td")[-1].text.split("\n")
 
+            results.append({"date": date, "details": details})
         return results
 
-    def extract_parts(self, response):
-        parts = response.xpath("//table[contains(@id, 'tableTodasPartes')]//tr")
-
-        dropset: str = "\n\t\r:"
-
+    def extract_parts(self, html):
+        dropset: str = "\n\t\r:\xa0"
         data_parts = []
-        for part in parts:
+
+        parts = html.find("#tableTodasPartes,#tablePartesPrincipais", first=True)
+        for part in parts.xpath("//tr"):
+            rows = part.find("td")[1].text.split("\n")
             first = {
-                clean(part.xpath("td[1]/span/text()").get(), dropset),
-                clean(part.xpath("td[2]/text()").get(), dropset),
+                clean(part.find("td")[0].text, dropset): clean(rows[0], dropset),
             }
             data_parts.append(first)
 
-            rows_labels = part.xpath("td[2]/span")
-            rows_values = part.xpath("td[2]/text()")[2::2]
-            for label, value in zip(rows_labels, rows_values):
-                data_parts.append(
-                    {
-                        clean(label.xpath("text()").get(), dropset): clean(
-                            value.get(), dropset
-                        ),
-                    }
-                )
+            for row in rows[1:]:
+                part_type = clean(row.split(":")[0])
+                part_name = clean(row.split(":")[1])
+
+                data_parts.append({part_type: part_name})
         return data_parts
-
-    # def extract_genaral_data(self, response):
-    #     general_data = response.xpath("//table[contains(@class, 'secaoFormBody')][1]")
-
-    #     results: Dict[str, str] = {}
-    #     for label in self.labels:
-    #         if label == "Área":
-    #             results[label] = clean(
-    #                 general_data.xpath(
-    #                     f"//tr[contains(string(), '{label}')]/td[2]/table/tr/td/text()"
-    #                 )[1].get()
-    #             )
-    #         else:
-    #             results[label] = general_data.xpath(
-    #                 f"//tr[contains(string(), '{label}')]/td[2]//span[last()]/text()"
-    #             ).get()
-
-    #     return results
 
     def extract_genaral_data(self, html):
         general_data = html.xpath("//table[contains(@class, 'secaoFormBody')]")[1]
