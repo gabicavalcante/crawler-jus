@@ -1,7 +1,16 @@
 from scrapy.http import HtmlResponse, Request
-from tjcrawler.crawler.tjcrawler import TJCrawler
+from tjcrawler.crawler.tjms_crawler import TJMSCrawler
 import os
 from requests_html import HTML
+
+process_number = "0821901-51.2018.8.12.0001"
+params = {
+    "cbPesquisa": "NUMPROC",
+    "dadosConsulta.tipoNuProcesso": "UNIFICADO",
+    "numeroDigitoAnoUnificado": "0821901-51.2018",
+    "foroNumeroUnificado": "0001",
+    "dadosConsulta.valorConsultaNuUnificado": "08219015120188120001",
+}
 
 
 def fake_response_from_file(file_name):
@@ -28,7 +37,7 @@ def fake_response_from_file(file_name):
 
 
 def test_spider_parts():
-    spider = TJCrawler(process_number="0821901-51.2018.8.12.0001")
+    spider = TJMSCrawler(process_number=process_number, params=params)
     results = spider.extract_parts(fake_response_from_file("parts.html"))
     parts = [
         {"Autora": "Leidi Silva Ormond Galvão"},
@@ -42,7 +51,7 @@ def test_spider_parts():
 
 
 def test_spider_movements():
-    spider = TJCrawler(process_number="0821901-51.2018.8.12.0001")
+    spider = TJMSCrawler(process_number="0821901-51.2018.8.12.0001", params=params)
     results = spider.extract_movements(fake_response_from_file("movimentacoes.html"))
 
     movements = [
@@ -78,7 +87,7 @@ def test_spider_movements():
 
 
 def test_spider_geral():
-    spider = TJCrawler(process_number="0821901-51.2018.8.12.0001")
+    spider = TJMSCrawler(process_number=process_number, params=params)
     results = spider.extract_genaral_data(fake_response_from_file("geral.html"))
 
     geral = {

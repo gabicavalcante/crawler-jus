@@ -1,16 +1,3 @@
-"""
-https://esaj.tjms.jus.br/cpopg5/search.do?
-
-conversationId:
-    cbPesquisa: NUMPROC
-    dadosConsulta.tipoNuProcesso: UNIFICADO
-    numeroDigitoAnoUnificado: 0821901-51.2018
-    foroNumeroUnificado: 0001
-    dadosConsulta.valorConsultaNuUnificado: 08219015120188120001
-    dadosConsulta.valorConsulta:
-    uuidCaptcha: sajcaptcha_d6309efff9e345a0a7697bc05a6929e7
-    pbEnviar: Pesquisar
-"""
 from typing import Dict, Tuple
 from urllib.parse import urlencode
 
@@ -18,11 +5,25 @@ import scrapy
 from loguru import logger
 from scrapy import signals
 from scrapy.signalmanager import dispatcher
-
-
 from requests_html import HTML
 
-# from scrapy.crawler import CrawlerProcess
+from scrapy.crawler import CrawlerProcess
+
+
+def save(signal, sender, item, response, spider):
+    logger.debug(item)
+
+
+class ProcessData(scrapy.Item):
+    level = scrapy.Field()
+    classe = scrapy.Field()
+    area = scrapy.Field()
+    assunto = scrapy.Field()
+    distribuicao = scrapy.Field()
+    juiz = scrapy.Field()
+    valor_acao = scrapy.Field()
+    movimentos = scrapy.Field()
+    parts = scrapy.Field()
 
 
 def clean_proc_value(value: str) -> float:
@@ -40,45 +41,18 @@ def clean_general_data(value: str) -> Tuple:
     return label.strip(), value.strip()
 
 
-def save(signal, sender, item, response, spider):
-    logger.debug(item)
-
-
-dispatcher.connect(save, signal=signals.item_passed)
-
-
-class ProcessData(scrapy.Item):
-    classe = scrapy.Field()
-    area = scrapy.Field()
-    assunto = scrapy.Field()
-    distribuicao = scrapy.Field()
-    juiz = scrapy.Field()
-    valor_acao = scrapy.Field()
-    movimentos = scrapy.Field()
-    parts = scrapy.Field()
-
-
-class TJCrawler(scrapy.Spider):
-    name = "TJCrawler"
+class TJMSCrawler(scrapy.Spider):
+    name = "TJMSCrawler"
     starting_url = "https://esaj.tjms.jus.br/cpopg5/search.do"
     labels = ["Classe", "Área", "Assunto", "Distribuição", "Juiz", "Valor da ação"]
 
-    def __init__(self, process_number, *args, **kwargs):
+    def __init__(self, process_number, params, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.process_number = process_number
+        self.params = params
 
     def start_requests(self):
-        params = {
-            "cbPesquisa": "NUMPROC",
-            "dadosConsulta.tipoNuProcesso": "UNIFICADO",
-            "numeroDigitoAnoUnificado": self.process_number[:15],
-            "foroNumeroUnificado": self.process_number[-4:],
-            "dadosConsulta.valorConsultaNuUnificado": clean(
-                self.process_number, dropset=".-"
-            ),
-        }
-
-        url = f"{self.starting_url}?conversationId=&{urlencode(params)}"
+        url = f"{self.starting_url}?conversationId=&{urlencode(self.params)}"
         yield scrapy.Request(url, callback=self.parser_user_data, dont_filter=True)
 
     def parser_user_data(self, response):
@@ -89,6 +63,7 @@ class TJCrawler(scrapy.Spider):
         movements_data = self.extract_movements(html)
 
         yield ProcessData(
+            level="1",
             classe=general_data.get("Classe"),
             area=general_data.get("Área"),
             assunto=general_data.get("Assunto"),
@@ -150,18 +125,45 @@ class TJCrawler(scrapy.Spider):
         return results
 
 
-# if __name__ == "__main__":
-#     process_number = "0821901-51.2018.8.12.0001"
-#     params = {
-#         "cbPesquisa": "NUMPROC",
-#         "dadosConsulta.tipoNuProcesso": "UNIFICADO",
-#         "numeroDigitoAnoUnificado": process_number[:15],
-#         "foroNumeroUnificado": process_number[-4:],
-#         "dadosConsulta.valorConsultaNuUnificado": clean_proc_number(process_number),
-#     }
+class TJ2MSCrawler(TJMSCrawler):
+    name = "TJ2MSCrawler"
+    starting_url = "https://esaj.tjms.jus.br/cposg5/search.do"
 
-#     dispatcher.connect(save, signal=signals.item_passed)
+    def parser_user_data(self, response):
+        html = HTML(html=response.body, async_=True)
 
-#     process = CrawlerProcess(settings={})
-#     process.crawl(TJCrawler, proc_data=params)
-#     process.start()
+        parts_data = self.extract_parts(html)
+        movements_data = self.extract_movements(html)
+
+        yield ProcessData(
+            level="2", movimentos=movements_data, parts=parts_data,
+        )
+
+
+if __name__ == "__main__":
+    process_number = "0821901-51.2018.8.12.0001"
+
+    dispatcher.connect(save, signal=signals.item_passed)
+
+    params_1_instance = {
+        "cbPesquisa": "NUMPROC",
+        "dadosConsulta.tipoNuProcesso": "UNIFICADO",
+        "numeroDigitoAnoUnificado": process_number[:15],
+        "foroNumeroUnificado": process_number[-4:],
+        "dadosConsulta.valorConsultaNuUnificado": clean(process_number, dropset=".-"),
+    }
+
+    process = CrawlerProcess(settings={})
+    process.crawl(TJMSCrawler, process_number, params_1_instance)
+
+    params_2_instance = {
+        "cbPesquisa": "NUMPROC",
+        "tipoNuProcesso": "UNIFICADO",
+        "numeroDigitoAnoUnificado": process_number[:15],
+        "foroNumeroUnificado": process_number[-4:],
+        "dePesquisaNuUnificado": clean(process_number, dropset=".-"),
+    }
+
+    process.crawl(TJ2MSCrawler, process_number, params_2_instance)
+    process.start()
+
