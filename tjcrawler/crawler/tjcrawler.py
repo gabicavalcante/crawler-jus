@@ -11,13 +11,16 @@ conversationId:
     uuidCaptcha: sajcaptcha_d6309efff9e345a0a7697bc05a6929e7
     pbEnviar: Pesquisar
 """
-from typing import Dict
+from typing import Dict, Tuple
 from urllib.parse import urlencode
 
 import scrapy
 from loguru import logger
 from scrapy import signals
 from scrapy.signalmanager import dispatcher
+
+
+from requests_html import HTML
 
 # from scrapy.crawler import CrawlerProcess
 
@@ -29,6 +32,12 @@ def clean_proc_value(value: str) -> float:
 def clean(value: str, dropset: str = "\n\t\r") -> str:
     dropmap = dict.fromkeys(map(ord, dropset))
     return value.translate(dropmap).strip()
+
+
+def clean_general_data(value: str) -> Tuple:
+    new_str = clean(value)
+    label, value = new_str.split(":", maxsplit=1)
+    return label.strip(), value.strip()
 
 
 def save(signal, sender, item, response, spider):
@@ -73,7 +82,9 @@ class TJCrawler(scrapy.Spider):
         yield scrapy.Request(url, callback=self.parser_user_data, dont_filter=True)
 
     def parser_user_data(self, response):
-        general_data = self.extract_genaral_data(response)
+        html = HTML(html=response.body, async_=True)
+
+        general_data = self.extract_genaral_data(html)
         parts_data = self.extract_parts(response)
         movements_data = self.extract_movements(response)
 
@@ -133,21 +144,39 @@ class TJCrawler(scrapy.Spider):
                 )
         return data_parts
 
-    def extract_genaral_data(self, response):
-        general_data = response.xpath("//table[contains(@class, 'secaoFormBody')][1]")
+    # def extract_genaral_data(self, response):
+    #     general_data = response.xpath("//table[contains(@class, 'secaoFormBody')][1]")
+
+    #     results: Dict[str, str] = {}
+    #     for label in self.labels:
+    #         if label == "Área":
+    #             results[label] = clean(
+    #                 general_data.xpath(
+    #                     f"//tr[contains(string(), '{label}')]/td[2]/table/tr/td/text()"
+    #                 )[1].get()
+    #             )
+    #         else:
+    #             results[label] = general_data.xpath(
+    #                 f"//tr[contains(string(), '{label}')]/td[2]//span[last()]/text()"
+    #             ).get()
+
+    #     return results
+
+    def extract_genaral_data(self, html):
+        general_data = html.xpath("//table[contains(@class, 'secaoFormBody')]")[1]
 
         results: Dict[str, str] = {}
         for label in self.labels:
-            if label == "Área":
-                results[label] = clean(
-                    general_data.xpath(
-                        f"//tr[contains(string(), '{label}')]/td[2]/table/tr/td/text()"
-                    )[1].get()
-                )
-            else:
-                results[label] = general_data.xpath(
-                    f"//tr[contains(string(), '{label}')]/td[2]//span[last()]/text()"
-                ).get()
+            label, value = clean_general_data(
+                general_data.xpath(f"//tr[contains(., '{label}')]", first=True).text
+            )
+            results[label] = value
+
+            if label == "Distribuição":
+                following = general_data.xpath(
+                    f"//tr[contains(., '{label}')][1]//following::tr"
+                )[0].text
+                results[label] += ". %s" % following
 
         return results
 
