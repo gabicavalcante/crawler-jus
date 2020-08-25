@@ -6,3 +6,4 @@ gunicorn
 pymongo
 dynaconf
 flask_pymongo
+requests_html
