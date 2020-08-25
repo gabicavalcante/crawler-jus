@@ -35,3 +35,15 @@ jobs:
           FORCE_ENV_FOR_DYNACONF: testing
         run: |
           pytest
+      - name: Generate coverage report
+        run: |
+          pip install pytest
+          pip install pytest-cov
+          pytest --cov=crawler_jus/ --cov-report=xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
+          fail_ci_if_error: true
+          path_to_write_report: ./coverage/codecov_report.gz
