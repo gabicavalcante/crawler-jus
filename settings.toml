@@ -5,3 +5,6 @@ EXTENSIONS = [
   "crawler_jus.api:init_app",
 ]
 MONGO_URI = "mongodb://localhost:27017/crawler"
+
+[testing]
+MONGO_URI = "mongodb://localhost:27017/crawler_test"

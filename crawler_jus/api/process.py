@@ -24,7 +24,10 @@ def index():
             {"process_number": format_proc_number(content["process_number"])}
         )
 
-        return {"sucess": json.dumps([data for data in process_data], default=str)}
+        return {
+            "status": "success",
+            "data": json.dumps([data for data in process_data], default=str),
+        }
     return {}, 400
 
 

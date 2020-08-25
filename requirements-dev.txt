@@ -1,7 +1,11 @@
 -r requirements.txt
 
+ipdb 
 autoflake
 black
 flake8
 isort
 pytest
+pytest-cov 
+pytest-flask 
+scrapy-mock

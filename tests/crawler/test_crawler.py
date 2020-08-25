@@ -1,7 +1,8 @@
 import os
-
+import pytest
 from scrapy.http import HtmlResponse, Request
 from crawler_jus.crawler.tjms_crawler import TJMSCrawler
+from .expected_process_data import expected
 
 from requests_html import HTML
 
@@ -13,6 +14,11 @@ params = {
     "foroNumeroUnificado": "0001",
     "dadosConsulta.valorConsultaNuUnificado": "08219015120188120001",
 }
+
+
+@pytest.fixture()
+def spider():
+    return TJMSCrawler(process_number=process_number, params=params)
 
 
 def fake_response_from_file(file_name):
@@ -37,8 +43,7 @@ def fake_response_from_file(file_name):
     return HTML(html=response.body, async_=True)
 
 
-def test_spider_parts():
-    spider = TJMSCrawler(process_number=process_number, params=params)
+def test_spider_parts(spider):
     results = spider.extract_parts(fake_response_from_file("parts.html"))
     parts = [
         {"Autora": "Leidi Silva Ormond Galvão"},
@@ -51,8 +56,7 @@ def test_spider_parts():
     assert results == parts
 
 
-def test_spider_movements():
-    spider = TJMSCrawler(process_number="0821901-51.2018.8.12.0001", params=params)
+def test_spider_movements(spider):
     results = spider.extract_movements(fake_response_from_file("movimentacoes.html"))
 
     movements = [
@@ -87,8 +91,7 @@ def test_spider_movements():
     assert results == movements
 
 
-def test_spider_geral():
-    spider = TJMSCrawler(process_number=process_number, params=params)
+def test_spider_geral(spider):
     results = spider.extract_genaral_data(fake_response_from_file("geral.html"))
 
     geral = {
@@ -100,3 +103,17 @@ def test_spider_geral():
         "Valor da ação": "R$ 10.000,00",
     }
     assert results == geral
+
+
+@pytest.mark.parametrize(
+    ["url", "expected"],
+    [
+        (
+            "https://esaj.tjms.jus.br/cpopg5/show.do?processo.codigo=01001ZB2W0000&processo.foro=1&processo.numero=0821901-51.2018.8.12.0001&uuidCaptcha=sajcaptcha_d6309efff9e345a0a7697bc05a6929e7",
+            expected,
+        )
+    ],
+)
+def test_parse(spider, response, expected):
+    result = next(spider.parser_user_data(response))
+    assert result == expected
