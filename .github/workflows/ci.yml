@@ -46,4 +46,3 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.xml
           fail_ci_if_error: true
-          path_to_write_report: ./coverage/codecov_report.gz
