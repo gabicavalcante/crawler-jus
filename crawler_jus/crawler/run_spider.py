@@ -1,7 +1,6 @@
 from typing import Dict
 from scrapy.crawler import CrawlerProcess
 from crawler_jus.crawler.tjms_crawler import TJ2MSCrawler, TJMSCrawler, clean
-from .tjms_crawler import TJMSCrawler
 
 
 def create_params_1instance(process_number: str) -> Dict[str, str]:

@@ -1,7 +1,6 @@
 import json
 
 from flask import Blueprint, request
-from loguru import logger
 
 from crawler_jus.ext.db import mongo
 from crawler_jus.crawler.utils import format_proc_number

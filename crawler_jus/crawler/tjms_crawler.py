@@ -1,5 +1,4 @@
-from logging import log
-from typing import Dict, Tuple
+from typing import Dict
 from urllib.parse import urlencode
 
 import scrapy
