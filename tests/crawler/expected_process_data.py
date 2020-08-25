@@ -1,3 +1,4 @@
+# fmt: off
 expected = {
     "area": "Cível",
     "assunto": "Enquadramento",
@@ -529,4 +530,4 @@ expected = {
     "process_number": "08219015120188120001",
     "valor_acao": 10000.0,
 }
-
+# fmt: on
