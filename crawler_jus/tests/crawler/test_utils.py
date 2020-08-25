@@ -1,4 +1,4 @@
-from tjcrawler.crawler.tjms_crawler import clean, clean_proc_value
+from crawler_jus.crawler.utils import clean, clean_proc_value
 
 
 def test_clean():

@@ -1,5 +1,4 @@
 from typing import Tuple
-import scrapy
 
 
 def clean_proc_value(value: str) -> float:
@@ -17,7 +16,5 @@ def clean_general_data(value: str) -> Tuple:
     return label.strip(), value.strip()
 
 
-class BaseSpider(scrapy.Spider):
-    def __init__(self, process_number, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.process_number = process_number
+def format_proc_number(number):
+    return clean(number, dropset=".-")

@@ -3,3 +3,6 @@ scrapy
 loguru
 requests
 gunicorn
+pymongo
+dynaconf
+flask_pymongo

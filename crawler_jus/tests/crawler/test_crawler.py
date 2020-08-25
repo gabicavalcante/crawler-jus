@@ -1,6 +1,8 @@
-from scrapy.http import HtmlResponse, Request
-from tjcrawler.crawler.tjms_crawler import TJMSCrawler
 import os
+
+from scrapy.http import HtmlResponse, Request
+from crawler_jus.crawler.tjms_crawler import TJMSCrawler
+
 from requests_html import HTML
 
 process_number = "0821901-51.2018.8.12.0001"
@@ -18,7 +20,6 @@ def fake_response_from_file(file_name):
     Create a Scrapy fake HTTP response from a HTML file
     @param file_name: The relative filename from the responses directory,
                       but absolute paths are also accepted.
-    @param url: The URL of the response.
     returns: A scrapy HTTP response which can be used for unittesting.
     """
     url = "http://www.example.com"
