@@ -5,7 +5,7 @@ from flask import Blueprint, request
 from crawler_jus.ext.db import mongo
 from crawler_jus.crawler.utils import format_proc_number
 
-colletion = mongo.db["process"]
+colletion = mongo.db.process
 
 
 process_blueprint = Blueprint("process", __name__, url_prefix="/")
@@ -20,8 +20,10 @@ def index():
     content = request.json
 
     if "process_number" in content and validate(content["process_number"]):
-        process_data = colletion.find(
-            {"process_number": format_proc_number(content["process_number"])}
+        process_data = list(
+            colletion.find(
+                {"process_number": format_proc_number(content["process_number"])}
+            )
         )
 
         return {

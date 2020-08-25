@@ -9,3 +9,5 @@ pytest
 pytest-cov 
 pytest-flask 
 scrapy-mock
+pytest-mongodb
+mock
