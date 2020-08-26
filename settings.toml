@@ -10,5 +10,6 @@ RABBIT_HOST = "@jinja {{env['RABBIT_HOST']  or 'localhost'}}"
 
 [testing]
 EXTENSIONS = [
+  "crawler_jus.ext.broker:init_app",
   "crawler_jus.api:init_app",
 ]
