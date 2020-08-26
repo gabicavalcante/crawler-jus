@@ -5,8 +5,7 @@ import scrapy
 from scrapy import signals
 from scrapy.signalmanager import dispatcher
 
-from crawler_jus.crawler.utils import (clean, clean_general_data,
-                                       format_proc_number)
+from crawler_jus.crawler.utils import clean, clean_general_data, format_proc_number
 
 
 def save(signal, sender, item, response, spider):

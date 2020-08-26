@@ -11,3 +11,4 @@ pytest-flask
 scrapy-mock
 pytest-mongodb
 mock
+requests-mock

@@ -22,7 +22,7 @@ def generate_origem_al():
     r = session.get(url)
     rows = r.html.find("table tr")[1:]
     for row in rows:
-        yield row.find("td")[1].text
+        yield row.find("td")[0].text
 
 
 def generate_origem_ms():
@@ -31,7 +31,7 @@ def generate_origem_ms():
     r = session.get(url)
     rows = r.html.find("p.texto-titulo-preto")
     for row in rows:
-        yield row.text.split("-")[0].strip()
+        yield row.text.split("-")[-1].strip()
 
 
 def create_numbers(ano, tr, j=8):
