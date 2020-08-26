@@ -5,6 +5,12 @@ EXTENSIONS = [
 ]
 MONGO_URI = "mongodb://localhost:27017/crawler"
 
+MS_FIRST_INSTANCE = "https://esaj.tjms.jus.br/cpopg5/search.do"
+MS_SECOND_INSTANCE = "https://esaj.tjms.jus.br/cposg5/search.do"
+
+AL_FIRST_INSTANCE = "https://www2.tjal.jus.br/cpopg/search.do"
+AL_SECOND_INSTANCE = "https://www2.tjal.jus.br/cposg5/search.do"
+
 [testing]
 EXTENSIONS = [
   "crawler_jus.api:init_app",

@@ -1,5 +1,6 @@
 from typing import Dict
 from urllib.parse import urlencode
+from requests_html import HTML
 
 import scrapy
 from scrapy import signals
@@ -37,14 +38,26 @@ class BaseCrawler(scrapy.Spider):
     labels = ["Classe", "Área", "Assunto", "Distribuição", "Juiz", "Valor da ação"]
     allowed_domains = ["esaj.tjms.jus.br", "tjal.jus.br"]
 
-    def __init__(self, process_number, params, *args, **kwargs):
+    def __init__(self, starting_url, process_number, params, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.process_number = format_proc_number(process_number)
         self.params = params
+        self.starting_url = starting_url
 
     def start_requests(self):
         url = f"{self.starting_url}?conversationId=&{urlencode(self.params)}"
-        yield scrapy.Request(url, callback=self.parser_user_data, dont_filter=True)
+        yield scrapy.Request(url, callback=self.parser, dont_filter=True)
+
+    def parser(self, response):
+        html = HTML(html=response.body, async_=True)
+        not_found_process = (
+            "Não existem informações disponíveis para os parâmetros informados"
+        )
+
+        if not_found_process in html.text:
+            yield {}
+        else:
+            yield self.parser_user_data(html)
 
     def extract_movements(self, html):
         results = []

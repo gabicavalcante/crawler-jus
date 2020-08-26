@@ -1,11 +1,13 @@
 import os
 import pytest
 from scrapy.http import HtmlResponse, Request
-from crawler_jus.crawler.tjms_crawler import TJMSCrawler, TJ2MSCrawler
-from crawler_jus.crawler.tjal_crawler import TJALCrawler, TJ2ALCrawler
-from crawler_jus.crawler.run_spider import get_tjcrawler
+from crawler_jus.crawler.tj_crawler import TJ1Crawler, TJ2Crawler
+
+# from crawler_jus.crawler.tjal_crawler import TJALCrawler, TJ2ALCrawler
+from crawler_jus.crawler.run_spider import get_tj_url
 from crawler_jus.crawler.error import UnAcceptedValueError
 from .expected_process_data import expected
+from dynaconf import settings
 
 from requests_html import HTML
 
@@ -21,7 +23,11 @@ params = {
 
 @pytest.fixture()
 def spider():
-    return TJMSCrawler(process_number=process_number, params=params)
+    return TJ1Crawler(
+        starting_url=settings.MS_FIRST_INSTANCE,
+        process_number=process_number,
+        params=params,
+    )
 
 
 def fake_response_from_file(file_name):
@@ -132,13 +138,19 @@ def test_parse(spider, response, expected):
     ],
 )
 def test_parse(spider, response, expected):
-    result = next(spider.parser_user_data(response))
+    result = next(spider.parser(response))
     assert result == expected
 
 
 def test_get_tjcrawler():
-    assert get_tjcrawler("07108025520188020001") == (TJALCrawler, TJ2ALCrawler)
-    assert get_tjcrawler("08219015120188120001") == (TJMSCrawler, TJ2MSCrawler)
+    assert get_tj_url("07108025520188020001") == (
+        settings.AL_FIRST_INSTANCE,
+        settings.AL_SECOND_INSTANCE,
+    )
+    assert get_tj_url("08219015120188120001") == (
+        settings.MS_FIRST_INSTANCE,
+        settings.MS_SECOND_INSTANCE,
+    )
 
     with pytest.raises(UnAcceptedValueError) as excinfo:
-        assert get_tjcrawler("07108025520188990001")
+        assert get_tj_url("07108025520188990001")

@@ -67,7 +67,16 @@ def init_app(app):
     @app.cli.command()
     @click.option("--process", "-p", type=str)
     @click.option("--start_year", "-s")
-    def crawler(process, start_year):
+    @click.option("--overwrite", "-o", is_flag=True, default=False)
+    def crawler(process, start_year, overwrite):
+        if not overwrite:
+            process_data = db.process.find_one(
+                {"process_number": format_proc_number(process)}
+            )
+            if process_data:
+                logger.info("process exists")
+                return
+
         if process:
             logger.info(f"run crawler: {process}")
             execute_spider_worker(process)
@@ -78,6 +87,7 @@ def init_app(app):
     @click.option("--process", "-p")
     @click.option("--level", "-l")
     def get_process(process, level):
+
         if level:
             process_data = db.process.find(
                 {"process_number": format_proc_number(process), "level": level}
