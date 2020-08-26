@@ -6,6 +6,7 @@ EXTENSIONS = [
   "crawler_jus.api:init_app",
 ]
 MONGO_URI = "mongodb://localhost:27017/crawler"
+RABBIT_HOST = "@jinja {{env['RABBIT_HOST']  or 'localhost'}}"
 
 [testing]
 EXTENSIONS = [

@@ -44,12 +44,11 @@ jobs:
         env:
           FORCE_ENV_FOR_DYNACONF: testing
         run: |
-          pytest
-      - name: Generate coverage report
-        run: |
-          pip install pytest
           pip install pytest-cov
           pytest --cov=crawler_jus --cov-report=xml
+        env:
+          # The hostname used to communicate with the rabbit service container
+          RABBIT_HOST: rabbitmq
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
