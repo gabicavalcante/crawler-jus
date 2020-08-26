@@ -1,11 +1,12 @@
 import json
 import pytest
 
-# def test_api(client):
-#     response = client.post("/process", json={"process_number": "08219015120188120001"})
-#     assert response.status_code == 200
-#     assert response.json["status"] == "precessing"
-#     assert response.json["data"] == []
+
+def test_api(client):
+    response = client.post("/process", json={"process_number": "08219015120188120001"})
+    assert response.status_code == 200
+    assert response.json["status"] == "precessing"
+    assert response.json["data"] == []
 
 
 def test_api_process(client):

@@ -16,7 +16,8 @@ from crawler_jus.ext.db import mongo
 
 
 def save(signal, sender, item, response, spider):
-    mongo.db.process.insert_one(dict(item))
+    if item:
+        mongo.db.process.insert_one(dict(item))
 
 
 dispatcher.connect(save, signal=signals.item_passed)
@@ -51,6 +52,12 @@ class TJMSCrawler(scrapy.Spider):
 
     def parser_user_data(self, response):
         html = HTML(html=response.body, async_=True)
+        not_found_process = (
+            "Não existem informações disponíveis para os parâmetros informados"
+        )
+
+        if not_found_process in html.text:
+            yield {}
 
         general_data = self.extract_genaral_data(html)
         parts_data = self.extract_parts(html)

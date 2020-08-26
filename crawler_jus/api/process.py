@@ -33,7 +33,7 @@ def index():
                 200,
             )
         else:
-            execute_spider_worker.send(number)
+            execute_spider_worker(number, subprocess=True)
             return {"status": "precessing", "data": []}, 200
     return {}, 400
 
