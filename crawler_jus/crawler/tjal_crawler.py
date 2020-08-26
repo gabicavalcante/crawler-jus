@@ -5,9 +5,9 @@ from crawler_jus.crawler.utils import clean_proc_value
 from .base import BaseCrawler, ProcessData
 
 
-class TJMSCrawler(BaseCrawler):
-    name = "MS_1_Crawler"
-    starting_url = "https://esaj.tjms.jus.br/cpopg5/search.do"
+class TJALCrawler(BaseCrawler):
+    name = "AL_1_Crawler"
+    starting_url = "https://www2.tjal.jus.br/cpopg/search.do"
 
     def parser_user_data(self, response):
         html = HTML(html=response.body, async_=True)
@@ -36,9 +36,9 @@ class TJMSCrawler(BaseCrawler):
             )
 
 
-class TJ2MSCrawler(BaseCrawler):
-    name = "MS_2_Crawler"
-    starting_url = "https://esaj.tjms.jus.br/cposg5/search.do"
+class TJ2ALCrawler(BaseCrawler):
+    name = "AL_2_Crawler"
+    starting_url = "https://www2.tjal.jus.br/cposg5/search.do"
 
     def parser_user_data(self, response):
         html = HTML(html=response.body, async_=True)

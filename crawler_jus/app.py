@@ -1,5 +1,5 @@
-from flask import Flask
 from dynaconf import FlaskDynaconf
+from flask import Flask
 
 
 def create_app(**config) -> Flask:

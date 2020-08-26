@@ -1,7 +1,10 @@
 import os
 import pytest
 from scrapy.http import HtmlResponse, Request
-from crawler_jus.crawler.tjms_crawler import TJMSCrawler
+from crawler_jus.crawler.tjms_crawler import TJMSCrawler, TJ2MSCrawler
+from crawler_jus.crawler.tjal_crawler import TJALCrawler, TJ2ALCrawler
+from crawler_jus.crawler.run_spider import get_tjcrawler
+from crawler_jus.crawler.error import UnAcceptedValueError
 from .expected_process_data import expected
 
 from requests_html import HTML
@@ -131,3 +134,11 @@ def test_parse(spider, response, expected):
 def test_parse(spider, response, expected):
     result = next(spider.parser_user_data(response))
     assert result == expected
+
+
+def test_get_tjcrawler():
+    assert get_tjcrawler("07108025520188020001") == (TJALCrawler, TJ2ALCrawler)
+    assert get_tjcrawler("08219015120188120001") == (TJMSCrawler, TJ2MSCrawler)
+
+    with pytest.raises(UnAcceptedValueError) as excinfo:
+        assert get_tjcrawler("07108025520188990001")

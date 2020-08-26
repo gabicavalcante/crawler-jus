@@ -3,14 +3,11 @@ from itertools import chain
 from loguru import logger
 from crawler_jus.database import db
 from crawler_jus.crawler.run_spider import execute_spider_worker
-from crawler_jus.crawler.tjms_crawler import clean
+from crawler_jus.crawler.utils import format_proc_number
 from datetime import datetime
 from requests_html import HTMLSession
 
 session = HTMLSession()
-
-
-colletion = db.process
 
 
 def clean_database():
@@ -38,29 +35,6 @@ def generate_origem_ms():
 
 
 def create_numbers(ano, tr, j=8):
-    """
-    j:  órgão ou segmento do Poder Judiciário
-        – Supremo Tribunal Federal: 1 (um);
-        – Conselho Nacional de Justiça: 2 (dois);
-        – Superior Tribunal de Justiça: 3 (três);
-        - Justiça Federal: 4 (quatro);
-        - Justiça do Trabalho: 5 (cinco);
-        - Justiça Eleitoral: 6 (seis);
-        - Justiça Militar da União: 7 (sete);
-        - Justiça dos Estados e do Distrito Federal e Territórios: 8 (oito);
-        - Justiça Militar Estadual: 9 (nove).
-
-    tr: tribunal do respectivo segmento do Poder Judiciário
-        – STF, CNJ, STJ, TST, TSE, STM = 0
-        – CJF e do CSJT = 90
-        – JF, TRF = 01 a 05
-        – JT, TRT 01 a 24
-        – JE, TRE 01 a 27
-        – JMU, CJM 01 a 12
-        - JE e do DF e Territórios, TJ 01 a 27
-        - JME, os TM MG, RS e SP:  13, 21 e 26
-    """
-    j = 8
     for process in range(0, 9999999):
         for origem in generate_origem_ms():
             value = f"{process}{ano}{j}{tr}{origem}"
@@ -81,7 +55,7 @@ def crawler_many(start_year):
         generate_ms = create_numbers(year, "02")
 
         for number in chain(generate_al, generate_ms):
-            if not colletion.find_one({"process_number": clean(number, dropset=".-")}):
+            if not db.process.find_one({"process_number": format_proc_number(number)}):
                 execute_spider_worker.send(args=(number,), delay=5000)
 
 
@@ -93,21 +67,25 @@ def init_app(app):
     @app.cli.command()
     @click.option("--process", "-p", type=str)
     @click.option("--start_year", "-s")
-    @click.option("--subprocess", flag_value=True)
-    def crawler(process, start_year, subprocess):
+    def crawler(process, start_year):
         if process:
             logger.info(f"run crawler: {process}")
-            if subprocess:
-                execute_spider_worker(process, True)
-            else:
-                execute_spider_worker(process)
+            execute_spider_worker(process)
         elif start_year:
             crawler_many(start_year)
 
     @app.cli.command()
     @click.option("--process", "-p")
-    def get_process(process):
-        process_data = colletion.find({"process_number": clean(process, dropset=".-")})
+    @click.option("--level", "-l")
+    def get_process(process, level):
+        if level:
+            process_data = db.process.find(
+                {"process_number": format_proc_number(process), "level": level}
+            )
+        else:
+            process_data = db.process.find(
+                {"process_number": format_proc_number(process)}
+            )
         if not process_data:
             print(f"Process number {process} was not found")
         else:

@@ -1,4 +1,3 @@
-from flask_pymongo import PyMongo
 from dynaconf import settings
 from pymongo import MongoClient
 
