@@ -7,4 +7,4 @@ pymongo
 dynaconf
 flask_pymongo
 requests_html
-'dramatiq[rabbitmq, watch]'
+dramatiq[rabbitmq, watch]
