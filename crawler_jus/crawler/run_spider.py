@@ -98,13 +98,6 @@ def execute_spider_worker(process_number, subprocess=False):
                 params=create_params_2instance(process_number),
             )
             crawler_process.start()
-
-            # crawler_func(
-            #     TJ1Crawler, url1_instance, process_number=process_number, settings={}
-            # )
-            # crawler_func(
-            #     TJ2Crawler, url2_instance, process_number=process_number, settings={}
-            # )
         except Exception:
             import traceback
 
