@@ -2,11 +2,11 @@ import json
 
 from flask import Blueprint, request
 
-from crawler_jus.ext.db import mongo
+from crawler_jus.database import db
 from crawler_jus.crawler.utils import format_proc_number
 from crawler_jus.crawler.run_spider import execute_spider_worker
 
-colletion = mongo.db.process
+collection = db.process
 
 
 process_blueprint = Blueprint("process", __name__, url_prefix="/")
@@ -22,7 +22,7 @@ def index():
 
     if "process_number" in content and validate(content["process_number"]):
         number = format_proc_number(content["process_number"])
-        process_data = list(colletion.find({"process_number": number}))
+        process_data = list(collection.find({"process_number": number}))
 
         if process_data:
             return (
@@ -40,5 +40,5 @@ def index():
 
 @process_blueprint.route("/reset", methods=["DELETE"])
 def reset():
-    result = colletion.delete_many({})
+    result = collection.delete_many({})
     return {"sucess": f"{result.deleted_count} documents deleted."}

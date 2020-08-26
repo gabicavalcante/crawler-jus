@@ -5,19 +5,22 @@ import scrapy
 from requests_html import HTML
 from scrapy import signals
 from scrapy.signalmanager import dispatcher
-
+from loguru import logger
 from crawler_jus.crawler.utils import (
     clean,
     format_proc_number,
     clean_proc_value,
     clean_general_data,
 )
-from crawler_jus.ext.db import mongo
 
 
 def save(signal, sender, item, response, spider):
+    from crawler_jus.database import db
+
+    collection = db.process
+
     if item:
-        mongo.db.process.insert_one(dict(item))
+        collection.insert_one(dict(item))
 
 
 dispatcher.connect(save, signal=signals.item_passed)

@@ -9,20 +9,20 @@ from dramatiq.brokers.stub import StubBroker
 import dramatiq
 
 
-@pytest.fixture
-def mongo(mongodb):
-    class mongo:
-        db = mongodb
+# @pytest.fixture
+# def mongo(mongodb):
+#     class mongo:
+#         db = mongodb
 
-    return mongo()
+#     return mongo()
 
 
 @pytest.fixture(scope="function", autouse=True)
-def app(mongo) -> Flask:
+def app(mongodb) -> Flask:
     """
     Provides an instance of our Flask app
     and set dynaconf env to test
     """
-    with patch("crawler_jus.ext.db.mongo", mongo):
+    with patch("crawler_jus.database.db", mongodb):
         app = create_app(FORCE_ENV_FOR_DYNACONF="testing")
         return app

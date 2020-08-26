@@ -1,7 +1,7 @@
 import click
 from itertools import chain
 from loguru import logger
-from crawler_jus.ext.db import mongo
+from crawler_jus.database import db
 from crawler_jus.crawler.run_spider import execute_spider_worker
 from crawler_jus.crawler.tjms_crawler import clean
 from datetime import datetime
@@ -10,12 +10,12 @@ from requests_html import HTMLSession
 session = HTMLSession()
 
 
-colletion = mongo.db["process"]
+colletion = db.process
 
 
 def clean_database():
     """Cleans database"""
-    result = colletion.delete_many({})
+    result = db.process.delete_many({})
     logger.info(f"{result.deleted_count} documents deleted.")
 
 
@@ -93,10 +93,14 @@ def init_app(app):
     @app.cli.command()
     @click.option("--process", "-p", type=str)
     @click.option("--start_year", "-s")
-    def crawler(process, start_year):
+    @click.option("--subprocess", flag_value=True)
+    def crawler(process, start_year, subprocess):
         if process:
             logger.info(f"run crawler: {process}")
-            execute_spider_worker(process)
+            if subprocess:
+                execute_spider_worker(process, True)
+            else:
+                execute_spider_worker(process)
         elif start_year:
             crawler_many(start_year)
 

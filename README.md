@@ -76,11 +76,11 @@ Para descobrir o tribunal usamos [o padrão CNJ de numeração de processos juri
 Um número de processo como `0710802-55.2018.8.02.0001`, tem a seguinte estrutura `NNNNNNN-DD.AAAA.J.TR.OOOO`:
 
 1.  `NNNNNNN`: campo com 7 dígitos, correspondente número do processo (`0710802`).
-2.  `55`: dígito verificador.
-3.  `2018`: ano do ajuizamento do processo.
-4.  `8`: órgão ou segmento do Poder Judiciário.
-5.  `02`: identificação do tribunal (02 para MS e 12 para AL).
-6.  `0001`: código da comarca
+2.  `DD`: dígito verificador (`55`).
+3.  `AAAA`: ano do ajuizamento do processo (`2018`).
+4.  `J`: órgão ou segmento do Poder Judiciário (`8`).
+5.  `TR`: identificação do tribunal (`02` para MS e `12` para AL).
+6.  `OOOO`: código da comarca (`0001`).
 
 - TJMS:
 

@@ -117,3 +117,17 @@ def test_spider_geral(spider):
 def test_parse(spider, response, expected):
     result = next(spider.parser_user_data(response))
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    ["url", "expected"],
+    [
+        (
+            "https://esaj.tjms.jus.br/cpopg5/show.do?processo.codigo=11111ZB2W0000&processo.foro=2&processo.numero=1111111-51.2018.8.12.0001&uuidCaptcha=sajcaptcha_d6309efff9e345a0a7697bc05a6929e7",
+            {},
+        )
+    ],
+)
+def test_parse(spider, response, expected):
+    result = next(spider.parser_user_data(response))
+    assert result == expected
