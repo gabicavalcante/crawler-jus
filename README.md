@@ -65,11 +65,17 @@ scrapy runspider crawler/tjcrawler.py -a process_number="0821901-51.2018.8.12.00
 }
 ```
 
-Para descobrir o tribunal usamos [o padrão CNJ de numeração de processos juridicos](https://www.cnj.jus.br/programas-e-acoes/numeracao-unica/).
 
-Um número de processo como `0710802-55.2018.8.02.0001`, tem uma estrutura estrutura composta por:
+#### async
+```
+dramatiq execute_spider_worker
+```
 
-1.  `0710802-55`: número do processo.
+Para descobrir o tribunal usamos [o padrão CNJ de numeração de processos juridicos](https://www.cnj.jus.br/programas-e-acoes/numeracao-unica/). [Ato](https://atos.cnj.jus.br/atos/detalhar/atos-normativos?documento=119) com mais detalhes sobre a CNJ.
+
+Um número de processo como `0710802-55.2018.8.02.0001`, tem a seguinte estrutura `NNNNNNN-DD.AAAA.J.TR.OOOO`:
+
+1.  `NNNNNNN`: campo com 7 dígitos, correspondente número do processo (`0710802`).
 2.  `55`: dígito verificador.
 3.  `2018`: ano do ajuizamento do processo.
 4.  `8`: órgão ou segmento do Poder Judiciário.
@@ -117,10 +123,10 @@ lista das movimentações (data e movimento)
 #### v2
 
 - [x] Lidar com processos não encontrados
-- [ ] Adicionar [dramatic](https://dramatiq.io/guide.html#actors)
+- [x] Adicionar [dramatic](https://dramatiq.io/guide.html#actors)
 - [ ] Adicionar validacao do número do processo
 - [ ] Adicionar identificacão de qual TJ é o processo
 - [x] Adicionar comandos CLI para facilitar uso da ferramenta
 - [ ] Generalizar crawler para AL
 - [ ] Criar docker-compose
-- [ ] Adicionar celery/redis queue para agendar o crawler
+- [x] Adicionar rabbit/celery/redis queue para agendar o crawler

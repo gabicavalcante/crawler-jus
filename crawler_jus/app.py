@@ -1,11 +1,5 @@
 from flask import Flask
-from crawler_jus.ext import configuration
-
-
-def minimal_app(**config) -> Flask:
-    app = Flask(__name__)
-    configuration.init_app(app, **config)
-    return app
+from dynaconf import FlaskDynaconf
 
 
 def create_app(**config) -> Flask:
@@ -13,6 +7,10 @@ def create_app(**config) -> Flask:
     Creates an application instance to run
     :return: A Flask object
     """
-    app = minimal_app(**config)
-    configuration.load_extensions(app)
+    app = Flask(__name__)
+
+    FlaskDynaconf(
+        app, settings_files=["settings.toml"], extensions_list="EXTENSIONS", **config
+    )
+
     return app

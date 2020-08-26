@@ -2,7 +2,6 @@ from typing import Dict
 from urllib.parse import urlencode
 
 import scrapy
-from loguru import logger
 from requests_html import HTML
 from scrapy import signals
 from scrapy.signalmanager import dispatcher
@@ -17,7 +16,6 @@ from crawler_jus.ext.db import mongo
 
 
 def save(signal, sender, item, response, spider):
-    logger.info("save item...")
     mongo.db.process.insert_one(dict(item))
 
 

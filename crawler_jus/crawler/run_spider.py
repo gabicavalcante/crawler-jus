@@ -1,6 +1,7 @@
 from typing import Dict
 from scrapy.crawler import CrawlerProcess
 from crawler_jus.crawler.tjms_crawler import TJ2MSCrawler, TJMSCrawler, clean
+import dramatiq
 
 
 def create_params_1instance(process_number: str) -> Dict[str, str]:
@@ -25,6 +26,7 @@ def create_params_2instance(process_number: str) -> Dict[str, str]:
     return params
 
 
+@dramatiq.actor
 def execute_spider_worker(process_number):
     process = CrawlerProcess(settings={})
 
