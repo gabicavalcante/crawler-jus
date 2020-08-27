@@ -20,6 +20,7 @@ def generate_origem_al():
     url = "https://www.trt19.jus.br/portalTRT19/conteudo/135"
 
     r = session.get(url)
+
     rows = r.html.find("table tr")[1:]
     for row in rows:
         yield row.find("td")[0].text
@@ -31,12 +32,16 @@ def generate_origem_ms():
     r = session.get(url)
     rows = r.html.find("p.texto-titulo-preto")
     for row in rows:
-        yield row.text.split("-")[-1].strip()
+        yield row.text.split("-")[0].strip()
 
 
 def create_numbers(ano, tr, j=8):
-    for process in range(0, 9999999):
-        for origem in generate_origem_ms():
+    for process in range(1, 2):
+        if tr == "12":
+            generate_origin = generate_origem_ms
+        else:
+            generate_origin = generate_origem_al
+        for origem in generate_origin():
             value = f"{process}{ano}{j}{tr}{origem}"
             digito_verificador = 98 - (int(value) % 97)
             yield f"{process:07}-{digito_verificador:02}.{ano}.{j}.{tr}.{origem}"
@@ -55,8 +60,9 @@ def crawler_many(start_year):
         generate_ms = create_numbers(year, "02")
 
         for number in chain(generate_al, generate_ms):
+            logger.info(number)
             if not db.process.find_one({"process_number": format_proc_number(number)}):
-                execute_spider_worker.send(args=(number,), delay=5000)
+                execute_spider_worker.send(number, True)
 
 
 def init_app(app):
@@ -69,7 +75,7 @@ def init_app(app):
     @click.option("--start_year", "-s")
     @click.option("--overwrite", "-o", is_flag=True, default=False)
     def crawler(process, start_year, overwrite):
-        if not overwrite:
+        if process and not overwrite:
             process_data = db.process.find_one(
                 {"process_number": format_proc_number(process)}
             )
