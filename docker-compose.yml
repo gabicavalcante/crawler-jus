@@ -11,3 +11,28 @@ services:
     image: rabbitmq
     ports:
       - 5672:5672
+
+  api:
+    image: python:3.7
+    links:
+      - mongo
+      - rabbitmq
+    depends_on:
+      - mongo
+      - rabbitmq
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"
+    expose:
+      - 5000
+    volumes:
+      - .:/crawler_jus
+    restart: always
+    environment:
+      FLASK_ENV: "development"
+      MONGO_HOST: mongo
+    command: >
+      bash -c "cd /crawler_jus &&   
+      pip install -r requirements-dev.txt && 
+      flask run --host 0.0.0.0 --port 5000"
