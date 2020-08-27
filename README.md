@@ -21,9 +21,7 @@ $ docker-compose up
 Agora faça uma requisição `POST /process` passando no corpo o número do processo. 
 
 ```bash
-curl -X POST -H "Content-Type: application/json" \                                                                
- -d '{"process_numbar":"0821901-51.2018.8.12.0001"}' \
- http://0.0.0.0:5000/process
+curl -X POST -H "Content-Type: application/json"  -d '{"process_number":"0821901-51.2018.8.12.0001"}'  http://0.0.0.0:5000/process
 ```
 
 Caso já tenhamos os dados do processo no banco, vamos retornar:
