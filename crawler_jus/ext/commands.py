@@ -42,7 +42,7 @@ def create_numbers(ano, tr, j=8):
         else:
             generate_origin = generate_origem_al
         for origem in generate_origin():
-            value = f"{process}{ano}{j}{tr}{origem}"
+            value = f"{process}{ano}{j}{tr}{origem}00"
             digito_verificador = 98 - (int(value) % 97)
             yield f"{process:07}-{digito_verificador:02}.{ano}.{j}.{tr}.{origem}"
 

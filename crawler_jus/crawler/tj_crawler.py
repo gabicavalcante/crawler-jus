@@ -1,5 +1,3 @@
-from requests_html import HTML
-
 from crawler_jus.crawler.utils import clean_proc_value
 
 from .base import BaseCrawler, ProcessData

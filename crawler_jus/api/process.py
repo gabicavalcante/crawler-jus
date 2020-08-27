@@ -6,14 +6,16 @@ from crawler_jus.database import db
 from crawler_jus.crawler.utils import format_proc_number
 from crawler_jus.crawler.run_spider import execute_spider_worker
 
-collection = db.process
-
-
 process_blueprint = Blueprint("process", __name__, url_prefix="/")
 
 
 def validate(number: str) -> bool:
-    return True
+    if len(number) == 25:
+        value = "%s%s00" % (number[:7], number[10:].replace(".", ""))
+        digito_verificador = 98 - (int(value) % 97)
+        if digito_verificador == int(number[8:10]):
+            return True
+    return False
 
 
 @process_blueprint.route("/process", methods=["POST"])
@@ -22,7 +24,7 @@ def index():
 
     if "process_number" in content and validate(content["process_number"]):
         number = format_proc_number(content["process_number"])
-        process_data = list(collection.find({"process_number": number}))
+        process_data = list(db.process.find({"process_number": number}))
 
         if process_data:
             return (
@@ -34,11 +36,11 @@ def index():
             )
         else:
             execute_spider_worker(number, subprocess=True)
-            return {"status": "precessing", "data": []}, 200
-    return {}, 400
+            return {"status": "processing", "data": []}, 200
+    return {}, 422
 
 
 @process_blueprint.route("/reset", methods=["DELETE"])
 def reset():
-    result = collection.delete_many({})
+    result = db.process.delete_many({})
     return {"sucess": f"{result.deleted_count} documents deleted."}
