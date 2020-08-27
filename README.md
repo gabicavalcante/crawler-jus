@@ -1,5 +1,5 @@
 ![CI](https://github.com/gabicavalcante/crawler-jus/workflows/CI/badge.svg)
-<!-- [![coverage](https://codecov.io/gh/gabicavalcante/crawler-jus/branch/master/graph/badge.svg)](https://codecov.io/gh/gabicavalcante/crawler-jus) -->
+[![Coverage Status](https://coveralls.io/repos/github/gabicavalcante/crawler-jus/badge.svg?branch=master)](https://coveralls.io/github/gabicavalcante/crawler-jus?branch=master)
 
 # Crawler Processos TJ
 
