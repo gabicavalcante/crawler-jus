@@ -10,6 +10,9 @@ Para a coleta de dados é usado [Scrapy](https://docs.scrapy.org/en/latest/) e F
 
 Os resultados do scraper são armazenados no bando de dados (no projeto foi utilizado Mongo). Caso o processo já exista na base de dados, a API retorna um JSON com o um status de sucesso e com as informação do processo no campo `data`. Caso o número do processo seja inválido, a API retorna `422`, e caso o processo ainda não exista no banco, retornamos o status de `processing`, e na próxima requisição a API retorna o dados atualizado. 
 
+### Note
+A branch [feature/requests-html](https://github.com/gabicavalcante/crawler-jus/tree/feature/requests-html) tem a implementação do crawler usando apensar [requests-html](https://requests.readthedocs.io/projects/requests-html/en/latest/). Os comandos funcionam da mesma forma, e as funcionalidades são identicas, então a documentação vale pra ambas as features ;) 
+
 ### Rodando a aplicacao
 
 Para rodar a API você pode usar o docker-compose ou instalar as dependências do projeto localmente e rodar usando o script `web.sh`. O docker-compose contém o serviço do mongo, do rabbit e da própria API Flask.
