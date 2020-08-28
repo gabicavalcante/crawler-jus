@@ -2,7 +2,6 @@ from multiprocessing import Process
 from typing import Dict
 
 import dramatiq
-from scrapy.crawler import CrawlerProcess
 
 from crawler_jus.crawler.tj_crawler import TJ1Crawler, TJ2Crawler
 from crawler_jus.crawler.utils import format_proc_number

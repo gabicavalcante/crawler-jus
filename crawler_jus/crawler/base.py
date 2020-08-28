@@ -1,10 +1,8 @@
 from typing import Dict, List
 from urllib.parse import urlencode
-import loguru
 from requests_html import HTMLSession
 from pydantic import BaseModel
 from abc import ABC, abstractmethod
-from loguru import logger
 
 from crawler_jus.crawler.utils import clean, clean_general_data, format_proc_number
 
