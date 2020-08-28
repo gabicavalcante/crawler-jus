@@ -10,7 +10,6 @@ class TJ1Crawler(BaseCrawler):
         general_data = self.extract_genaral_data(html)
         parts_data = self.extract_parts(html)
         movements_data = self.extract_movements(html)
-
         return ProcessData(
             process_number=self.process_number,
             level="1",

@@ -1,63 +1,69 @@
-from typing import Dict
+from typing import Dict, List
 from urllib.parse import urlencode
-from requests_html import HTML
-
-import scrapy
-from scrapy import signals
-from scrapy.signalmanager import dispatcher
+import loguru
+from requests_html import HTMLSession
+from pydantic import BaseModel
+from abc import ABC, abstractmethod
+from loguru import logger
 
 from crawler_jus.crawler.utils import clean, clean_general_data, format_proc_number
 
 
-def save(signal, sender, item, response, spider):
+class Moviments(BaseModel):
+    date: str
+    details: List[str]
+
+
+class ProcessData(BaseModel):
+    process_number: str
+    level: str
+    classe: str
+    area: str
+    assunto: str
+    distribuicao: str
+    juiz: str
+    valor_acao: str
+    movimentos: List[Moviments]
+    parts: List[Dict[str, str]]
+
+
+def save(item: ProcessData):
     from crawler_jus.database import db
 
     collection = db.process
 
     if item:
-        collection.insert_one(dict(item))
+        collection.insert_one(item.dict())
 
 
-dispatcher.connect(save, signal=signals.item_passed)
-
-
-class ProcessData(scrapy.Item):
-    process_number = scrapy.Field()
-    level = scrapy.Field()
-    classe = scrapy.Field()
-    area = scrapy.Field()
-    assunto = scrapy.Field()
-    distribuicao = scrapy.Field()
-    juiz = scrapy.Field()
-    valor_acao = scrapy.Field()
-    movimentos = scrapy.Field()
-    parts = scrapy.Field()
-
-
-class BaseCrawler(scrapy.Spider):
+class BaseCrawler(ABC):
     labels = ["Classe", "Área", "Assunto", "Distribuição", "Juiz", "Valor da ação"]
-    allowed_domains = ["esaj.tjms.jus.br", "tjal.jus.br"]
 
     def __init__(self, starting_url, process_number, params, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self.process_number = format_proc_number(process_number)
         self.params = params
         self.starting_url = starting_url
 
     def start_requests(self):
+        session = HTMLSession()
         url = f"{self.starting_url}?conversationId=&{urlencode(self.params)}"
-        yield scrapy.Request(url, callback=self.parser, dont_filter=True)
+        response = session.get(url)
+        return self.parser(response)
 
     def parser(self, response):
-        html = HTML(html=response.body, async_=True)
         not_found_process = (
             "Não existem informações disponíveis para os parâmetros informados"
         )
 
-        if not_found_process in html.text:
-            yield {}
+        if not_found_process in response.text:
+            return {}
         else:
-            yield self.parser_user_data(html)
+            result = self.parser_user_data(response.html)
+            save(result)
+
+    @abstractmethod
+    def parser_user_data(response):
+        pass
 
     def extract_movements(self, html):
         results = []

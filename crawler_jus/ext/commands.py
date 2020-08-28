@@ -85,7 +85,7 @@ def init_app(app):
 
         if process:
             logger.info(f"run crawler: {process}")
-            execute_spider_worker(process)
+            execute_spider_worker(process, False)
         elif start_year:
             crawler_many(start_year)
 

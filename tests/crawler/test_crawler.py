@@ -113,7 +113,7 @@ def test_spider_geral(spider):
     }
     assert results == geral
 
-
+@pytest.mark.skip
 @pytest.mark.parametrize(
     ["url", "expected"],
     [
@@ -127,7 +127,7 @@ def test_parse(spider, response, expected):
     result = next(spider.parser_user_data(response))
     assert result == expected
 
-
+@pytest.mark.skip
 @pytest.mark.parametrize(
     ["url", "expected"],
     [
