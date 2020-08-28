@@ -112,36 +112,6 @@ def test_spider_geral(spider):
     assert results == geral
 
 
-@pytest.mark.skip
-@pytest.mark.parametrize(
-    ["url", "expected"],
-    [
-        (
-            "https://esaj.tjms.jus.br/cpopg5/show.do?processo.codigo=01001ZB2W0000&processo.foro=1&processo.numero=0821901-51.2018.8.12.0001&uuidCaptcha=sajcaptcha_d6309efff9e345a0a7697bc05a6929e7",
-            expected,
-        )
-    ],
-)
-def test_parse(spider, response, expected):
-    result = next(spider.parser_user_data(response))
-    assert result == expected
-
-
-@pytest.mark.skip
-@pytest.mark.parametrize(
-    ["url", "expected"],
-    [
-        (
-            "https://esaj.tjms.jus.br/cpopg5/show.do?processo.codigo=11111ZB2W0000&processo.foro=2&processo.numero=1111111-51.2018.8.12.0001&uuidCaptcha=sajcaptcha_d6309efff9e345a0a7697bc05a6929e7",
-            {},
-        )
-    ],
-)
-def test_parse(spider, response, expected):
-    result = next(spider.parser(response))
-    assert result == expected
-
-
 def test_get_tjcrawler():
     assert get_tj_url("07108025520188020001") == (
         settings.AL_FIRST_INSTANCE,
