@@ -1,9 +1,7 @@
 import os
 import pytest
-from scrapy.http import HtmlResponse, Request
-from crawler_jus.crawler.tj_crawler import TJ1Crawler, TJ2Crawler
+from crawler_jus.crawler.tj_crawler import TJ1Crawler
 
-# from crawler_jus.crawler.tjal_crawler import TJALCrawler, TJ2ALCrawler
 from crawler_jus.crawler.run_spider import get_tj_url
 from crawler_jus.crawler.error import UnAcceptedValueError
 from .expected_process_data import expected
@@ -113,6 +111,7 @@ def test_spider_geral(spider):
     }
     assert results == geral
 
+
 @pytest.mark.skip
 @pytest.mark.parametrize(
     ["url", "expected"],
@@ -126,6 +125,7 @@ def test_spider_geral(spider):
 def test_parse(spider, response, expected):
     result = next(spider.parser_user_data(response))
     assert result == expected
+
 
 @pytest.mark.skip
 @pytest.mark.parametrize(
