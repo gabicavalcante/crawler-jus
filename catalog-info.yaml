@@ -8,6 +8,7 @@ metadata:
   annotations:
     example.com/service-discovery: artistweb
     backstage.io/managed-by-location: github:http://github.com/gabicavalcante/crawler-jus/catalog-info.yaml
+    github.com/project-slug: gabicavalcante/crawler-jus
   tags:
     - python
 spec:
