@@ -1,0 +1,29 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: crawler-jus
+  description: crawler-jus
+  labels:
+    system: public-websites
+  annotations:
+    example.com/service-discovery: artistweb
+    backstage.io/managed-by-location: github:http://github.com/gabicavalcante/crawler-jus/catalog-info.yaml
+  tags:
+    - python
+spec:
+  type: website
+  lifecycle: production
+  owner: crawler-jus@example.com
+  definition: |
+    openapi: "3.0.0"
+    info:
+      version: 1.0.0
+      title: Artist API
+      license:
+        name: MIT
+    servers:
+      - url: http://artist.spotify.net/v1
+    paths:
+      /artists:
+        get:
+          summary: List all artists
