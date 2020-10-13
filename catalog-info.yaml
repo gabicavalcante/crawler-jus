@@ -7,7 +7,7 @@ metadata:
     system: public-websites
   annotations:
     example.com/service-discovery: artistweb
-    backstage.io/managed-by-location: github:http://github.com/gabicavalcante/crawler-jus/catalog-info.yaml
+    backstage.io/managed-by-location: https://github.com/gabicavalcante/crawler-jus/blob/master/catalog-info.yaml
     github.com/project-slug: gabicavalcante/crawler-jus
   tags:
     - python
