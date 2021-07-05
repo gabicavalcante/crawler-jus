@@ -1,9 +1,7 @@
 import os
 import pytest
-from scrapy.http import HtmlResponse, Request
-from crawler_jus.crawler.tj_crawler import TJ1Crawler, TJ2Crawler
+from crawler_jus.crawler.tj_crawler import TJ1Crawler
 
-# from crawler_jus.crawler.tjal_crawler import TJALCrawler, TJ2ALCrawler
 from crawler_jus.crawler.run_spider import get_tj_url
 from crawler_jus.crawler.error import UnAcceptedValueError
 from .expected_process_data import expected
@@ -112,34 +110,6 @@ def test_spider_geral(spider):
         "Valor da ação": "R$ 10.000,00",
     }
     assert results == geral
-
-
-@pytest.mark.parametrize(
-    ["url", "expected"],
-    [
-        (
-            "https://esaj.tjms.jus.br/cpopg5/show.do?processo.codigo=01001ZB2W0000&processo.foro=1&processo.numero=0821901-51.2018.8.12.0001&uuidCaptcha=sajcaptcha_d6309efff9e345a0a7697bc05a6929e7",
-            expected,
-        )
-    ],
-)
-def test_parse(spider, response, expected):
-    result = next(spider.parser_user_data(response))
-    assert result == expected
-
-
-@pytest.mark.parametrize(
-    ["url", "expected"],
-    [
-        (
-            "https://esaj.tjms.jus.br/cpopg5/show.do?processo.codigo=11111ZB2W0000&processo.foro=2&processo.numero=1111111-51.2018.8.12.0001&uuidCaptcha=sajcaptcha_d6309efff9e345a0a7697bc05a6929e7",
-            {},
-        )
-    ],
-)
-def test_parse(spider, response, expected):
-    result = next(spider.parser(response))
-    assert result == expected
 
 
 def test_get_tjcrawler():

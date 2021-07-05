@@ -2,7 +2,6 @@ from multiprocessing import Process
 from typing import Dict
 
 import dramatiq
-from scrapy.crawler import CrawlerProcess
 
 from crawler_jus.crawler.tj_crawler import TJ1Crawler, TJ2Crawler
 from crawler_jus.crawler.utils import format_proc_number
@@ -44,22 +43,13 @@ def create_params_2instance(process_number: str) -> Dict[str, str]:
     return params
 
 
-def crawler_func(crawler, url, process_number, settings):
-    crawler_process = CrawlerProcess(settings)
-    crawler_process.crawl(
-        crawler,
-        starting_url=url,
-        process_number=process_number,
-        params=create_params_1instance(process_number),
-    )
-    crawler_process.start()
+def run(crawler, url, process_number, params):
+    c = crawler(url, process_number, params)
+    c.start_requests()
 
 
-def start_crawler_process(crawler, url, process_number) -> Process:
-    all_settings = {**{"TELNETCONSOLE_ENABLED": False}}
-    proc = Process(
-        target=crawler_func, args=(crawler, url, process_number, all_settings,)
-    )
+def start_crawler_process(crawler, url, process_number, params) -> Process:
+    proc = Process(target=run, args=(crawler, url, process_number, params))
     proc.start()
     return proc
 
@@ -74,34 +64,29 @@ def execute_spider_worker(process_number, subprocess=False):
             lambda x: x.join(),
             [
                 start_crawler_process(
-                    TJ1Crawler, url1_instance, process_number=process_number
+                    TJ1Crawler,
+                    url1_instance,
+                    process_number=process_number,
+                    params=create_params_1instance(process_number),
                 ),
                 start_crawler_process(
-                    TJ2Crawler, url2_instance, process_number=process_number
+                    TJ2Crawler,
+                    url2_instance,
+                    process_number=process_number,
+                    params=create_params_1instance(process_number),
                 ),
             ],
         )
     else:
-        try:
-            crawler_process = CrawlerProcess(settings={})
-            crawler_process.crawl(
-                TJ1Crawler,
-                starting_url=url1_instance,
-                process_number=process_number,
-                params=create_params_1instance(process_number),
-            )
-
-            crawler_process.crawl(
-                TJ2Crawler,
-                starting_url=url2_instance,
-                process_number=process_number,
-                params=create_params_2instance(process_number),
-            )
-            crawler_process.start()
-        except Exception:
-            import traceback
-
-            logger.error(traceback.format_exc())
-            return "error", traceback.format_exc()
-        else:
-            return "ok"
+        run(
+            TJ1Crawler,
+            url1_instance,
+            process_number=process_number,
+            params=create_params_1instance(process_number),
+        ),
+        run(
+            TJ2Crawler,
+            url2_instance,
+            process_number=process_number,
+            params=create_params_1instance(process_number),
+        ),

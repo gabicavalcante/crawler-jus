@@ -1,5 +1,4 @@
 flask
-scrapy
 loguru
 requests
 gunicorn
@@ -8,3 +7,4 @@ dynaconf
 flask_pymongo
 requests_html
 dramatiq[rabbitmq, watch]
+pydantic
